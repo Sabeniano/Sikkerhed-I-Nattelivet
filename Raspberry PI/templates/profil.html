@@ -1,0 +1,97 @@
+<!DOCTYPE html> 
+<html>
+    <head>
+        <link rel="stylesheet" href="../static/style.css">
+        <meta charset="UTF-8">
+            <title>Sikkerhed i nattelivet</title> 
+    </head> 
+        <body> 
+          <nav class="navbar">
+            <div class="navdiv">
+                <div class="logo"><a href="#">Sikkerhed i nattelivet</a></div>
+                <ul>
+                    <li><a href="profil">Profil</a></li>
+                    <li><a href="lokation">Lokation</a></li>
+                    <li><a href="#">Kort</a></li>
+                    <li><button class="Telefonnumre-button" onclick="openlogin()"> Telefonnumre </button></li>
+                    <li><button class="BeskedPopup-button">Besked</button></li>
+                    <li><a href="logout">Log ud</a></li>
+                </ul>
+                <div class="BeskedPopup">
+                  <div class="BeskedPopup-content">
+                    <h2>Besked</h2>
+                    <p>Skriv din besked her:</p>
+                    <textarea id="BeskedTextarea"></textarea>
+                    <button id="GemBeskedButton">Gem besked</button>
+                  </div>
+                </div>
+                <div class="Telefonnumre-popup" id="MinTelefonnumrePopup"> 
+                  <form action="/Telefonnumre" method="post" class="Telefonnumre-container">
+                      <h2>Telefonnumre:</h2>  
+  
+                      <label for="telefonnummer">Telefon 1:</label> 
+                      <input type="text" id="telefonnummer" placeholder="Skriv Telefonnummer">
+  
+                      <label for="telefonnummer">Telefon 2:</label> 
+                      <input type="text" id="telefonnummer" placeholder="Skriv Telefonnummer">
+                      
+                      <label for="telefonnummer">Telefon 3:</label> 
+                      <input type="text" id="telefonnummer" placeholder="Skriv Telefonnummer">  
+
+                      <label for="telefonnummer">Telefon 4:</label> 
+                      <input type="text" id="telefonnummer" placeholder="Skriv Telefonnummer">  
+  
+                      <button type="button" class="btn cancel" onclick="closelogin()">Luk Ned</button>
+                  </form>
+              </div> 
+            </div>
+          </nav>
+          <h1>Logget ind som: {{ user.brugernavn }}!</h1>
+          <script>
+            const popupButton = document.querySelector('.BeskedPopup-button');
+            const popup = document.querySelector('.BeskedPopup');
+            const beskedTextarea = document.querySelector('#BeskedTextarea');
+            const gemBeskedButton = document.querySelector('#GemBeskedButton');
+
+            
+            const savedMessage = localStorage.getItem('besked');
+            if (savedMessage) {
+              beskedTextarea.value = savedMessage;
+            }
+
+            popupButton.addEventListener('click', () => {
+              popup.style.display = 'block';
+            });
+
+            popup.addEventListener('click', (event) => {
+              if (event.target === popup) {
+                popup.style.display = 'none';
+              }
+            });
+
+            
+            gemBeskedButton.addEventListener('click', () => {
+              localStorage.setItem('besked', beskedTextarea.value);
+              alert('Besked gemt!');
+            });
+
+
+            function openlogin() {
+                    document.getElementById("MinTelefonnumrePopup").style.display = "block";
+                }
+            function closelogin() {
+                    document.getElementById("MinTelefonnumrePopup").style.display = "none"; 
+                }
+
+                const telefonnummerInput = document.querySelector('#telefonnummer');
+
+                const savedTelefonnummer = localStorage.getItem('telefonnummer');
+                if (savedTelefonnummer) {
+                  telefonnummerInput.value = savedTelefonnummer;
+                }
+                telefonnummerInput.addEventListener('input', () => {
+                localStorage.setItem('telefonnummer', telefonnummerInput.value);
+                });  
+          </script>
+        </body>
+</html>
