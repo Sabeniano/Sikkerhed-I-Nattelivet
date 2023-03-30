@@ -2,15 +2,17 @@ import _thread
 import network
 import gps
 import utime
-import mqtt_communication
 from time import sleep
 from credentials import credentials
 from networking import connect_to_wifi
 from machine import ADC, Pin, I2C, SoftI2C
 from battery_lights import led_percentage
 from bytes_to_voltage import calculate_voltage
+from mqtt_communication import connect_mqtt_client, check_mqtt_connection
 from testing import test_byte
 
+wlan = connect_to_wifi()
+mqtt_client = connect_mqtt_client()
 
 # Define a debounce time in milliseconds
 debounce = 50
@@ -24,8 +26,6 @@ green_led = Pin(32, Pin.OUT)
 red_led = Pin(33, Pin.OUT)
 button = Pin(5, Pin.IN, Pin.PULL_UP)
 
-
-
 ## MCP3021 I2C addresse
 address = 0x49 #73
 
@@ -33,17 +33,13 @@ address = 0x49 #73
 red_led.off()
 green_led.off()
 
-## Delte variabler, til thread lock
-gps_pos_recent = None
-send_data_flag = False
-
-
 ## Lavet er _thread lock objekt, som vi bruger så vi kan sende data mellem threads,
 ## som sørger for at ingen andre threads kan bruge den delte variable før den bliver frigjort
 lock = _thread.allocate_lock()
 
-wlan = connect_to_wifi()
-mqtt_client = mqtt_communication.mqtt_client()
+## Delte variabler, til thread lock
+gps_pos_recent = None
+send_data_flag = False
 
 PRODUCT_ID = credentials["productid"]
 
@@ -83,15 +79,24 @@ def button_pressed(pin):
 
 def main_loop():
     global send_data_flag
+    
+    if not wlan.isconnected():
+        connect_to_wifi()
+    
+    if not mqtt_client:
+        ###TODO: connect til andre mqtt ?
+        return
+    
     while True:
-        data = i2c.readfrom(address, 2)
+        #data = i2c.readfrom(address, 2)
         
-        #network
+        #network TODO: VIBRATOR
         if not wlan.isconnected():
             connect_to_wifi()
-        #mqtt_client
-        if mqtt_client.sock is None:
-            mqtt_communication.check_mqtt_connection(mqtt_client)
+            
+        #mqtt_client TODO: VIBRATOR
+        check_mqtt_connection(mqtt_client)
+            
         ## Læser værdi fra ADC med I2C
     
         #battery_percentage = calculate_voltage(data)
@@ -115,28 +120,14 @@ main_loop()
 ##vibration på if data == "0.0,0.0"(stadig bedre tjek):
 ##kominber bytes_to_voltage fil med battery_lights
 
-
 ## TODO ESP:
 ## BEDRE LOGIK PÅ INTERNET OG MQTT CONNECTION
-
-
-## knap til send gps data
 ## vibrator hvis gps data ikke sendt
 ## led batteri
-    
-## TODO RaspberryPi:
-## mqtt broker tjek
-## netværk? tjek
-## få data fra esp med mqtt broker tjek
-## opsæt python til at kigge på mqtt data og derefter brug data
-## matplot kort
-## sæt latitude og longitude på matplot kort
-## data på database
-## gem data på database
-## sæt ALLE latitude og longitude på matplot kort
-## ring til mobil
-## login funktion
-## session funktion
 
-    
+## TODO RASP:
+## sms til mobil
+## opret profil
+## opdater profil m. numre
+## sæt ALLE latitude og longitude på matplot kort
 

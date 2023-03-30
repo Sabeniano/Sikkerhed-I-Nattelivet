@@ -1,4 +1,5 @@
 import network
+from time import sleep
 from credentials import credentials
 
 # WiFi connection information
@@ -16,13 +17,9 @@ def connect_to_wifi():
     wlan.connect(WIFI_SSID, WIFI_PASSWORD)
 
     # Wait for the connection to be established
-    if not wlan.isconnected():
-        print("Connecting to WiFi...")
-        wlan.connect(WIFI_SSID, WIFI_PASSWORD)
-        while not wlan.isconnected():
-            pass
+    while not wlan.isconnected():
+        sleep(1)
     print("Connected to WiFi network.")
-
     # Print the network configuration
     print("Network configuration:", wlan.ifconfig())
     return wlan
