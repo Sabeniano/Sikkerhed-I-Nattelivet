@@ -32,7 +32,8 @@ def check_mqtt_connection(mqtt_client):
             mqtt_client.disconnect()
             mqtt_client.connect()
             print('MQTT reconnected')
+            return True
         except Exception as e:
             print('MQTT reconnect failed:', e)
-            # Do something else if reconnection fails
+            return False
 

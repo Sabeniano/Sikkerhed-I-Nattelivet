@@ -11,7 +11,10 @@ import struct
     # og derefter konverteres til en 10-bit signed integer
     # ved at shiftet værdien 2 bits til højre.
 
-u_num = 16.49418502202643
+#383
+#findes ved at tage en måling på sit batteri, kaldet U
+#U*1023/adc_val = u_num
+u_num = 15.86271255060729
 def calculate_voltage(byte_from_adc):
     ##https://www.w3schools.com/python/gloss_python_bitwise_operators.asp
     value = struct.unpack('>h', byte_from_adc)[0] >> 2

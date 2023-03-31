@@ -1,30 +1,25 @@
 import _thread
 import network
-import gps
 import utime
 from time import sleep
 from credentials import credentials
 from networking import connect_to_wifi
-from machine import ADC, Pin, I2C, SoftI2C
+from machine import ADC, Pin, I2C, SoftI2C, UART
 from battery_lights import led_percentage
 from bytes_to_voltage import calculate_voltage
 from mqtt_communication import connect_mqtt_client, check_mqtt_connection
-from testing import test_byte
-
-wlan = connect_to_wifi()
-mqtt_client = connect_mqtt_client()
-
-# Define a debounce time in milliseconds
-debounce = 50
-
-# Define a variable to store the last time the button was pressed
-last_pressed_time = 0
+from micropy.micropyGPS import MicropyGPS
 
 ## Pin objekter
 i2c = SoftI2C(scl=Pin(22), sda=Pin(21))
 green_led = Pin(32, Pin.OUT)
 red_led = Pin(33, Pin.OUT)
 button = Pin(5, Pin.IN, Pin.PULL_UP)
+vib = Pin(19, Pin.OUT, value=0)
+
+## Laver instans af wlan og mqtt
+wlan = connect_to_wifi()
+mqtt_client = connect_mqtt_client()
 
 ## MCP3021 I2C addresse
 address = 0x49 #73
@@ -38,35 +33,59 @@ green_led.off()
 lock = _thread.allocate_lock()
 
 ## Delte variabler, til thread lock
-gps_pos_recent = None
+#Bruges til at sende true når knap er trykket
 send_data_flag = False
 
+# Denne variabel opdateres til at holde gps data
+gps_from_thread = None
+
+# Define a debounce time in milliseconds
+debounce = 50
+
+# Define a variable to store the last time the button was pressed
+last_pressed_time = 0
+
+# Product id på ESP
 PRODUCT_ID = credentials["productid"]
 
-# GPS thread function
 def gps_thread(sleep_timer):
-    global gps_pos_recent
+    uart = UART(2, baudrate=9600, bits=8, parity=None,
+                stop=1, timeout=5000, rxbuf=1024)
+    global gps_from_thread
+    gps = MicropyGPS()
     while True:
-        gps_data = gps.get_gps_data()
-        with lock:
-            gps_pos_recent = gps_data
+        buf = uart.readline()
+        if buf:
+            for char in buf:
+                gps.update(chr(char)) # Note the conversion to to chr, UART outputs ints normally
+        
+        formattedLat = gps.latitude_string()    
+        formattedLat = formattedLat[:-3]
+        formattedLon = gps.longitude_string()
+        formattedLon = formattedLon[:-3]
+
+        gps_in_use = gps.satellites_in_use    
+        #print('Satellites:', gps_in_use)
+
+        if formattedLat != "0.0" and formattedLon != "0.0":
+            gps_from_thread = formattedLat+","+formattedLon
+            print("From gps_thread: {}".format(gps_from_thread))
         sleep(sleep_timer)
 
 # Send data thread function
 def send_data_thread(sleep_timer):
-    global gps_pos_recent, send_data_flag
+    global gps_from_thread, send_data_flag
     while True:
         if send_data_flag:
             with lock:
-                data = gps_pos_recent
+                data = gps_from_thread
+                print(data)
             if data is not None and len(data) > 7:
-                mqtt_client.publish('gps_data_topic',PRODUCT_ID +' '+ data)
-                print("Data sent successfully")
-                #TODO VIBRATION IF STATEMENT HVIS DATA IKKE ER SENDT
-                #if
-                #print("Failed to send data")
+                mqtt_client.publish('gps_data_topic',PRODUCT_ID +' '+ data)        
+                vib.value(0)
+                print("Sendt data!")
             else:
-                #TODO VIBRATION
+                vib.value(1)
                 print("No signal from GPS")
             send_data_flag = False
         sleep(sleep_timer)
@@ -82,23 +101,30 @@ def main_loop():
     
     if not wlan.isconnected():
         connect_to_wifi()
+        vib.value(0)
+    else:
+        vib.value(1)
+        
     
     if not mqtt_client:
         ###TODO: connect til andre mqtt ?
         return
     
     while True:
-        #data = i2c.readfrom(address, 2)
+        data = i2c.readfrom(address, 2)
         
-        #network TODO: VIBRATOR
         if not wlan.isconnected():
             connect_to_wifi()
-            
-        #mqtt_client TODO: VIBRATOR
-        check_mqtt_connection(mqtt_client)
-            
+            vib.value(1)
+        else:
+            vib.value(0)
+        
+        if check_mqtt_connection(mqtt_client):
+            vib.value(1)
+        else:
+            vib.value(0)
+        
         ## Læser værdi fra ADC med I2C
-    
         #battery_percentage = calculate_voltage(data)
         #led_percentage(green_led, red_led, battery_percentage)
 
