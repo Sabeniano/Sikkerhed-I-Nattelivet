@@ -125,8 +125,8 @@ def main_loop():
             vib.value(0)
         
         ## Læser værdi fra ADC med I2C
-        #battery_percentage = calculate_voltage(data)
-        #led_percentage(green_led, red_led, battery_percentage)
+        battery_percentage = calculate_voltage(data)
+        led_percentage(green_led, red_led, battery_percentage)
 
         button_pressed = not button.value()  ##Simulate waiting for button press event
         if button_pressed:
