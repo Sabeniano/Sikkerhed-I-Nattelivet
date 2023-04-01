@@ -4,4 +4,4 @@ Nattelivet kan være et sjovt og spændende sted for unge kvinder at socialisere
 SIN (Sikkerhed i nattelivet) er en IoT-løsning, som skal give forbrugeren muligheden for at tilkalde hjælp fra de nærmeste tilnærmede.
 Løsningen er todelt som består af en webserver, og en fysisk løsning som består af en taktil trykknap, ESP-32, og GPS modul. Løsningen er et alarm system hvor den taktile knap kan trykkes, og dermed vil der blive sendt et url med en gps position til ens nære.
 
-![alt text](https://github.com/Sabeniano/Sikkerhed-I-Nattelivet/image/server_topologi.jpg?raw=true)
+![alt text](https://github.com/Sabeniano/Sikkerhed-I-Nattelivet/blob/main/Raspberry%20PI/static/images/Server_Topologi.png?raw=true)
