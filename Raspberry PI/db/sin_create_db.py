@@ -1,9 +1,7 @@
 import sqlite3
 
-# Tilslutter til database
 conn = sqlite3.connect('sinDB.db')
 
-# Vi laver et curser object til at eksekvere SQL kommandoer
 cur = conn.cursor()
 
 try:
