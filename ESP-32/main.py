@@ -17,7 +17,7 @@ red_led = Pin(33, Pin.OUT)
 button = Pin(5, Pin.IN, Pin.PULL_UP)
 vib = Pin(19, Pin.OUT, value=0)
 
-## Laver instans af wlan og mqtt
+## Instans af wlan og mqtt
 wlan = connect_to_wifi()
 mqtt_client = connect_mqtt_client()
 
@@ -28,21 +28,18 @@ address = 0x49 #73
 red_led.off()
 green_led.off()
 
-## Lavet er _thread lock objekt, som vi bruger så vi kan sende data mellem threads,
-## som sørger for at ingen andre threads kan bruge den delte variable før den bliver frigjort
+##_thread lock objekt
 lock = _thread.allocate_lock()
 
 ## Delte variabler, til thread lock
-#Bruges til at sende true når knap er trykket
 send_data_flag = False
 
-# Denne variabel opdateres til at holde gps data
 gps_from_thread = None
 
-# Define a debounce time in milliseconds
+## Debounce timer
 debounce = 50
 
-# Define a variable to store the last time the button was pressed
+## Bliver ikke brugt
 last_pressed_time = 0
 
 # Product id på ESP
@@ -57,15 +54,14 @@ def gps_thread(sleep_timer):
         buf = uart.readline()
         if buf:
             for char in buf:
-                gps.update(chr(char)) # Note the conversion to to chr, UART outputs ints normally
+                gps.update(chr(char))
         
         formattedLat = gps.latitude_string()    
         formattedLat = formattedLat[:-3]
         formattedLon = gps.longitude_string()
         formattedLon = formattedLon[:-3]
 
-        gps_in_use = gps.satellites_in_use    
-        #print('Satellites:', gps_in_use)
+        gps_in_use = gps.satellites_in_use
 
         if formattedLat != "0.0" and formattedLon != "0.0":
             gps_from_thread = formattedLat+","+formattedLon
@@ -107,7 +103,6 @@ def main_loop():
         
     
     if not mqtt_client:
-        ###TODO: connect til andre mqtt ?
         return
     
     while True:
@@ -124,11 +119,10 @@ def main_loop():
         else:
             vib.value(0)
         
-        ## Læser værdi fra ADC med I2C
         battery_percentage = calculate_voltage(data)
         led_percentage(green_led, red_led, battery_percentage)
 
-        button_pressed = not button.value()  ##Simulate waiting for button press event
+        button_pressed = not button.value() 
         if button_pressed:
             print("button pressed")
             with lock:
@@ -138,22 +132,3 @@ def main_loop():
 _thread.start_new_thread(gps_thread, (1,))
 _thread.start_new_thread(send_data_thread, (5,))
 main_loop()
-
-
-##Todo:
-##knap som sender gps_pos_recent til mqqt raspberrypi
-##bedre tjek på if data != "0.0,0.0":
-##vibration på if data == "0.0,0.0"(stadig bedre tjek):
-##kominber bytes_to_voltage fil med battery_lights
-
-## TODO ESP:
-## BEDRE LOGIK PÅ INTERNET OG MQTT CONNECTION
-## vibrator hvis gps data ikke sendt
-## led batteri
-
-## TODO RASP:
-## sms til mobil
-## opret profil
-## opdater profil m. numre
-## sæt ALLE latitude og longitude på matplot kort
-
