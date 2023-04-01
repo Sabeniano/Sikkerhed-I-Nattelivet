@@ -4,7 +4,6 @@ from models import Bruger
 from mqtt import mqtt_listener
 from flask import Flask, g, render_template, request, url_for, redirect, session
 
-#Starter mqtt som lytter på gps_data_topic
 thread = threading.Thread(target=mqtt_listener())
 thread.start()
 
@@ -15,7 +14,6 @@ app.secret_key = 'SDSDSHFT23213213FDSFSDF'
 @app.before_request
 def before_request():
     if 'brugernavn' in session:
-        # Bruger er allerede logget ind, loader bruger objekt til user som kan bruges til view
         user = Bruger.find_by_username(session['brugernavn'])
         if user:
             g.user = user
