@@ -6,7 +6,6 @@ from twilio_sms import send_sms
 db_path = db_path = os.path.abspath(os.path.join(os.path.dirname(__file__), 'db', 'sinDB.db'))
 
 def on_message(client, userdata, message):
-    # Do something with the message, such as store it in a database
     data = message.payload.decode("utf-8")
 
     prod_koord = data.split(" ",1)
@@ -27,7 +26,6 @@ def on_message(client, userdata, message):
     lokation_url = f'https://young-frog-3.telebit.io/lokation/{lat_long[0]}/{lat_long[1]}'
     send_sms("+4560571314", lokation_url)
 
-##Eksevkere on_message hvis gps_data_topic får data
 def mqtt_listener():
     client = mqtt.Client()
     client.on_message = on_message
