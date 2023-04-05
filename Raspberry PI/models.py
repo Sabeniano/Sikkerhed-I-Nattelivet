@@ -14,9 +14,11 @@ class Bruger:
         conn = sqlite3.connect(db_path)
         cur = conn.cursor()
         if self.id:
-            cur.execute('UPDATE bruger SET brugernavn=?, kode=?, produkt=? WHERE bruger_id=?', (self.brugernavn, self.kode, self.produkt, self.bruger_id))
+            cur.execute('UPDATE bruger SET brugernavn=?, kode=?, produkt=? WHERE bruger_id=?', 
+                        (self.brugernavn, self.kode, self.produkt, self.bruger_id))
         else:
-            cur.execute('INSERT INTO bruger (brugernavn, kode, produkt) VALUES (?, ?, ?)', (self.brugernavn, self.kode, self.produkt))
+            cur.execute('INSERT INTO bruger (brugernavn, kode, produkt) VALUES (?, ?, ?)', 
+                        (self.brugernavn, self.kode, self.produkt))
             self.id = cur.lastrowid
         conn.commit()
         conn.close()
@@ -24,7 +26,8 @@ class Bruger:
     def insert(self):
         conn = sqlite3.connect(db_path)
         cur = conn.cursor()
-        cur.execute('INSERT INTO bruger (brugernavn, kode, produkt) VALUES (?, ?, ?)', (self.brugernavn, self.kode, self.produkt))
+        cur.execute('INSERT INTO bruger (brugernavn, kode, produkt) VALUES (?, ?, ?)', 
+                    (self.brugernavn, self.kode, self.produkt))
         self.id = cur.lastrowid
         conn.commit()
         conn.close()
@@ -32,7 +35,8 @@ class Bruger:
     def delete(self):
         conn = sqlite3.connect(db_path)
         cur = conn.cursor()
-        cur.execute('DELETE FROM bruger WHERE bruger_id=?', (self.bruger_id,))
+        cur.execute('DELETE FROM bruger WHERE bruger_id=?', 
+                    (self.bruger_id,))
         conn.commit()
         conn.close()
 
@@ -50,7 +54,8 @@ class Bruger:
     def telefon(self):
         conn = sqlite3.connect(db_path)
         cur = conn.cursor()
-        cur.execute('SELECT telefonnummer FROM telefon WHERE bruger_id=?', (self.bruger_id,))
+        cur.execute('SELECT telefonnummer FROM telefon WHERE bruger_id=?', 
+                    (self.bruger_id,))
         row = cur.fetchone()
         conn.close()
         if row:
