@@ -63,18 +63,12 @@
                 const gemBeskedButton = document.querySelector('#GemBeskedButton');
                 const savedMessage = localStorage.getItem('besked');
 		      
-                if (savedMessage) {
-                  beskedTextarea.value = savedMessage;
-                }
+                if (savedMessage) { beskedTextarea.value = savedMessage; }
     
-                popupButton.addEventListener('click', () => {
-                  popup.style.display = 'block';
-                });
+                popupButton.addEventListener('click', () => { popup.style.display = 'block'; });
     
                 popup.addEventListener('click', (event) => {
-                  if (event.target === popup) {
-                    popup.style.display = 'none';
-                  }
+                  if (event.target === popup) { popup.style.display = 'none'; }
                 });
 		      
                 gemBeskedButton.addEventListener('click', () => {
@@ -82,19 +76,16 @@
                   alert('Besked gemt!');
                 });
     
-                function openlogin() {
-                        document.getElementById("MinTelefonnumrePopup").style.display = "block";
-                    }
-                function closelogin() {
-                        document.getElementById("MinTelefonnumrePopup").style.display = "none"; 
-                    }
+                function openlogin() { document.getElementById("MinTelefonnumrePopup").style.display = "block"; }
+		      
+                function closelogin() { document.getElementById("MinTelefonnumrePopup").style.display = "none"; }
     
                     const telefonnummerInput = document.querySelector('#telefonnummer');
     
                     const savedTelefonnummer = localStorage.getItem('telefonnummer');
-                    if (savedTelefonnummer) {
-                      telefonnummerInput.value = savedTelefonnummer;
-                    }
+		      
+                    if (savedTelefonnummer) { telefonnummerInput.value = savedTelefonnummer; }
+		      
                     telefonnummerInput.addEventListener('input', () => {
                     localStorage.setItem('telefonnummer', telefonnummerInput.value);
                     });  
