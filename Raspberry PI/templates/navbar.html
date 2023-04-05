@@ -61,9 +61,8 @@
                 const popup = document.querySelector('.BeskedPopup');
                 const beskedTextarea = document.querySelector('#BeskedTextarea');
                 const gemBeskedButton = document.querySelector('#GemBeskedButton');
-    
-                
                 const savedMessage = localStorage.getItem('besked');
+		      
                 if (savedMessage) {
                   beskedTextarea.value = savedMessage;
                 }
@@ -77,13 +76,11 @@
                     popup.style.display = 'none';
                   }
                 });
-    
-                
+		      
                 gemBeskedButton.addEventListener('click', () => {
                   localStorage.setItem('besked', beskedTextarea.value);
                   alert('Besked gemt!');
                 });
-    
     
                 function openlogin() {
                         document.getElementById("MinTelefonnumrePopup").style.display = "block";
